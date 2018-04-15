@@ -1,0 +1,10 @@
+data_dir=simple-examples
+
+if [ ! -d $data_dir ]; then
+  wget http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz
+  tar xfz simple-examples.tgz
+  rm simple-examples.tgz
+
+  mv simple-examples/data/* ./
+  rm -rf simple-examples
+fi
