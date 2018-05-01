@@ -117,21 +117,19 @@ def train():
     batch_len = input_train.batch_len
     model = RNNLM(config)
 
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
 
-    for pass_id in range(config.num_passes):
-        for batch_id in range(batch_len):
-            x_batch, y_batch = input_train.next_batch()
+        for pass_id in range(config.num_passes):
+            for batch_id in range(batch_len):
+                x_batch, y_batch = input_train.next_batch()
 
-            feed_dict = {model._inputs: x_batch, model._targets: y_batch}
-            sess.run(model.optim, feed_dict=feed_dict)
+                feed_dict = {model._inputs: x_batch, model._targets: y_batch}
+                sess.run([model.optim, model.cost], feed_dict=feed_dict)
 
-            if batch_id and not batch_id % 5:
-                cost = sess.run(model.cost, feed_dict=feed_dict)
-                print("Pass %d, Batch %d, Loss %.4f" % (pass_id, batch_id,
-                                                        cost))
-    sess.close()
+                if batch_id and not batch_id % 5:
+                    print("Pass %d, Batch %d, Loss %.4f" % (pass_id, batch_id,
+                                                            cost))
 
 
 if __name__ == "__main__":
