@@ -1,8 +1,36 @@
 #!/usr/bin/env python
 #coding=utf-8
+
+import codecs
+from collections import Counter
 from collections import defaultdict
 
-from tensorflow.python.client import device_lib
+__all__ = [
+    "read_words",
+    "build_vocab",
+    "get_available_gpus",
+]
+
+
+def read_words(filename):
+    """Read word strings from the given file.
+    """
+    with codecs.open(filename, "r", encoding="utf-8") as f:
+        return f.read().replace("\n", "<eos>").split()
+
+
+def build_vocab(filename):
+    """Biuld the word vocabulary.
+    """
+
+    data = read_words(filename)
+    counter = Counter(data)
+    count_pairs = sorted(counter.items(), key=lambda x: -x[1])
+
+    words, _ = list(zip(*count_pairs))
+    word_to_id = dict(zip(words, range(len(words))))
+
+    return words, word_to_id
 
 
 def build_dict(file_name, save_path):
@@ -19,10 +47,3 @@ def build_dict(file_name, save_path):
     with open(save_path, "w") as fdict:
         for w, freq in sorted_dict:
             fdict.write("%s\t%d\n" % (w, freq))
-
-
-def get_available_gpus():
-    """Returns a list of available GPU devices names.
-    """
-    local_device_protos = device_lib.list_local_devices()
-    return [x.name for x in local_device_protos if x.device_type == "GPU"]

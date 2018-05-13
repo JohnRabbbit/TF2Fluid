@@ -3,8 +3,27 @@
 
 import tensorflow as tf
 
-from rnnlm import LMConfig, RNNLM
-from dataset_api_example import get_dataset
+from rnnlm_tensorflow import RNNLM
+from load_data_tensorflow import get_dataset
+
+
+class LMConfig(object):
+    """Configuration of language model"""
+    batch_size = 200 * 1
+    time_major = False
+
+    train_data_path = "data/ptb.train.txt"
+    vocab_file_path = "data/vocab.txt"
+    vocab_size = 10001
+    unk_id = 1
+
+    embedding_dim = 32
+    hidden_dim = 128
+    num_layers = 2
+
+    learning_rate = 1e-3
+
+    num_passes = 5
 
 
 def train():
