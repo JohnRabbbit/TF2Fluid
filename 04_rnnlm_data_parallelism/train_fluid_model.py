@@ -11,7 +11,7 @@ class LMConfig(object):
     """Configuration of the RNN language model"""
 
     vocab_size = 10000
-    batch_size = 64
+    batch_size = 60
 
     embedding_dim = 64
     hidden_dim = 128
@@ -21,7 +21,7 @@ class LMConfig(object):
     learning_rate = 0.001
 
     parallel = True
-    use_gpu = False
+    use_gpu = True
 
     num_passes = 5
 

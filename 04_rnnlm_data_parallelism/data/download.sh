@@ -8,3 +8,6 @@ if [ ! -d $data_dir ]; then
   mv simple-examples/data/ptb.train.txt ./
   rm -rf simple-examples
 fi
+
+cd ../
+python utils.py

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #coding=utf-8
-
+import os
 import codecs
 from collections import Counter
 from collections import defaultdict
@@ -33,7 +33,7 @@ def build_vocab(filename):
     return words, word_to_id
 
 
-def build_dict(file_name, save_path):
+def build_dict_and_save(file_name, save_path):
     word_dict = defaultdict(int)
     with open(file_name, "r") as fin:
         for line in fin:
@@ -47,3 +47,10 @@ def build_dict(file_name, save_path):
     with open(save_path, "w") as fdict:
         for w, freq in sorted_dict:
             fdict.write("%s\t%d\n" % (w, freq))
+
+
+if __name__ == "__main__":
+    file_name = "data/ptb.train.txt"
+    vocab_file_path = "data/vocab.txt"
+    if not os.path.exists(vocab_file_path):
+        build_dict_and_save(file_name, vocab_file_path)

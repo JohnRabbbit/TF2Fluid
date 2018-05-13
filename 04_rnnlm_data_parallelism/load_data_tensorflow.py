@@ -5,8 +5,6 @@ import sys
 
 import tensorflow as tf
 
-from utils import build_dict
-
 
 def get_dataset(file_name,
                 vocab_file_path,
@@ -98,24 +96,3 @@ def get_dataset(file_name,
     batched_iter = batched_dataset.make_initializable_iterator()
     curwd, nxtwd, curwd_len, nxtwd_len = batched_iter.get_next()
     return batched_iter.initializer, curwd, nxtwd, curwd_len
-
-
-if __name__ == "__main__":
-    file_name = "data/ptb.train.txt"
-    vocab_file_path = "data/vocab.txt"
-    if not os.path.exists(vocab_file_path):
-        build_dict(file_name, vocab_file_path)
-
-    batch_size = 2
-
-    initializer, curwd, nxtwd, seq_len = get_dataset(
-        file_name, vocab_file_path, batch_size)
-
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        sess.run(tf.tables_initializer())
-        sess.run(initializer)
-
-        for i in range(5):
-            ids1, ids2, ids2_len = sess.run([curwd, nxtwd, seq_len])
-            print ids2_len

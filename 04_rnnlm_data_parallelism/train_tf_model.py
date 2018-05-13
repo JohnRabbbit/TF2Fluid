@@ -8,8 +8,7 @@ from load_data_tensorflow import get_dataset
 
 
 class LMConfig(object):
-    """Configuration of language model"""
-    batch_size = 200 * 1
+    batch_size = 60
     time_major = False
 
     train_data_path = "data/ptb.train.txt"
@@ -37,7 +36,7 @@ def train():
     config = tf.ConfigProto()
     config.log_device_placement = True
     config.gpu_options.allow_growth = True
-    config.allow_soft_placement = False
+    config.allow_soft_placement = True
 
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
