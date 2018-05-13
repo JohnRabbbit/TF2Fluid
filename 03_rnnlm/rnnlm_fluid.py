@@ -22,7 +22,7 @@ class LMConfig(object):
 
     learning_rate = 0.001
 
-    parallel = False
+    parallel = True
     use_gpu = False
 
     num_passes = 5
@@ -54,7 +54,7 @@ class RNNLM(object):
                 bias_attr=fluid.ParamAttr(
                     initializer=NormalInitializer(loc=0.0, scale=1.0)),
                 input=hidden if i else input)
-            lstm = fluid.layers.dynamic_lstm(
+            return fluid.layers.dynamic_lstm(
                 input=hidden,
                 size=self.hidden_dim * 4,
                 candidate_activation="tanh",
@@ -63,19 +63,19 @@ class RNNLM(object):
                 bias_attr=fluid.ParamAttr(
                     initializer=NormalInitializer(loc=0.0, scale=1.0)),
                 is_reverse=False)
-        return lstm
 
     def __cost(self, lstm_output, lbl):
         prediction = fluid.layers.fc(
             input=lstm_output, size=self.vocab_size, act="softmax")
-        return prediction, fluid.layers.cross_entropy(
-            input=prediction, label=lbl)
+        cost = fluid.layers.cross_entropy(input=prediction, label=lbl)
+        cost.stop_gradient = True
+        return prediction, cost
 
     def __network(self, word, lbl):
         word_embedding = self.__input_embedding(word)
         lstm_output = self.__rnn(word_embedding)
         prediction, cost = self.__cost(lstm_output, lbl)
-        return prediction, fluid.layers.mean(x=cost)
+        return prediction, cost
 
     def build_rnnlm(self):
         word = fluid.layers.data(
@@ -86,15 +86,14 @@ class RNNLM(object):
         if self.parallel:
             places = fluid.layers.get_places()
             pd = fluid.layers.ParallelDo(places)
-
             with pd.do():
                 word_ = pd.read_input(word)
                 lbl_ = pd.read_input(lbl)
-                prediction, avg_cost = self.__network(word, lbl)
-                pd.write_output(avg_cost)
+                prediction, cost = self.__network(word_, lbl_)
+                pd.write_output(cost)
                 pd.write_output(prediction)
-            prediction, avg_cost = pd()
-            avg_cost = fluid.layers.mean(x=avg_cost)
+            cost, prediction = pd()
+            avg_cost = fluid.layers.mean(x=cost)
         else:
             prediction, avg_cost = self.__network(word, lbl)
         return word, lbl, prediction, avg_cost
